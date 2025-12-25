@@ -11,7 +11,14 @@
       "Bash(npm run dev:*)",
       "Bash(git init:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(npm install:*)",
+      "Bash(VERCEL_TOKEN=SC9LmkKAVYhvxLANTvCZkvM8 vercel --yes --token SC9LmkKAVYhvxLANTvCZkvM8 --prod)",
+      "Bash(cat:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

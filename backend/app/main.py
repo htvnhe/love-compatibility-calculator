@@ -10,19 +10,34 @@ import string
 from typing import Dict
 from datetime import datetime, timedelta
 
-from .models import (
-    CreateSessionRequest,
-    CreateSessionResponse,
-    JoinSessionRequest,
-    JoinSessionResponse,
-    SubmitAnswersRequest,
-    SessionStatus,
-    SessionStatusResponse,
-    CompatibilityResult,
-    QUESTIONS,
-    get_compatibility_message
-)
-from .fhe_engine import get_compatibility_engine, NUM_QUESTIONS
+try:
+    from .models import (
+        CreateSessionRequest,
+        CreateSessionResponse,
+        JoinSessionRequest,
+        JoinSessionResponse,
+        SubmitAnswersRequest,
+        SessionStatus,
+        SessionStatusResponse,
+        CompatibilityResult,
+        QUESTIONS,
+        get_compatibility_message
+    )
+    from .fhe_engine import get_compatibility_engine, NUM_QUESTIONS
+except ImportError:
+    from models import (
+        CreateSessionRequest,
+        CreateSessionResponse,
+        JoinSessionRequest,
+        JoinSessionResponse,
+        SubmitAnswersRequest,
+        SessionStatus,
+        SessionStatusResponse,
+        CompatibilityResult,
+        QUESTIONS,
+        get_compatibility_message
+    )
+    from fhe_engine import get_compatibility_engine, NUM_QUESTIONS
 
 app = FastAPI(
     title="Love Compatibility Calculator",
