@@ -1,30 +1,41 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Copy, Check, Share2 } from 'lucide-react'
+import { ArrowLeft, Copy, Check, Share2, Sparkles } from 'lucide-react'
 import HeartIcon from '../components/HeartIcon'
+import PersonalityTags from '../components/PersonalityTags'
 import useApi from '../hooks/useApi'
+
+const CUTE_ICONS = ['💖', '🌸', '✨', '🦋', '🌈', '💫', '🍬', '🎀']
 
 const CreateSession = () => {
   const navigate = useNavigate()
   const { createSession } = useApi()
 
   const [name, setName] = useState('')
+  const [selectedIcon, setSelectedIcon] = useState('💖')
+  const [selectedTags, setSelectedTags] = useState([])
   const [isCreating, setIsCreating] = useState(false)
   const [sessionData, setSessionData] = useState(null)
   const [copied, setCopied] = useState(false)
+
+  const getDisplayName = () => {
+    const tagString = selectedTags.map(t => t.emoji).join('')
+    return selectedIcon + ' ' + name.trim() + ' ' + tagString
+  }
 
   const handleCreate = async () => {
     if (!name.trim()) return
 
     setIsCreating(true)
     try {
-      const data = await createSession(name.trim())
+      const displayName = getDisplayName()
+      const data = await createSession(displayName)
       setSessionData(data)
       // Store session info
       sessionStorage.setItem('sessionCode', data.session_code)
       sessionStorage.setItem('personId', data.person_id)
-      sessionStorage.setItem('personName', name.trim())
+      sessionStorage.setItem('personName', getDisplayName())
       sessionStorage.setItem('isCreator', 'true')
     } catch (error) {
       console.error('Failed to create session:', error)
@@ -86,20 +97,66 @@ const CreateSession = () => {
               <p className="text-gray-400 mt-2">Enter your name to get started</p>
             </div>
 
-            <div className="glass rounded-2xl p-8">
-              <div className="mb-6">
+            <div className="glass rounded-2xl p-8 space-y-6">
+              {/* Cute Icon Selector */}
+              <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Name
+                  Pick your icon 🎨
                 </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name..."
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all text-white placeholder-gray-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleCreate()}
-                />
+                <div className="flex flex-wrap gap-2">
+                  {CUTE_ICONS.map((icon) => (
+                    <motion.button
+                      key={icon}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setSelectedIcon(icon)}
+                      className={`w-12 h-12 rounded-xl text-2xl flex items-center justify-center transition-all duration-200 ${selectedIcon === icon ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg shadow-pink-500/30' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      {icon}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
+
+              {/* Name Input */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Your Name 💕
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">{selectedIcon}</span>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name..."
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all text-white placeholder-gray-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleCreate()}
+                  />
+                </div>
+              </div>
+
+              {/* Personality Tags */}
+              <PersonalityTags
+                selectedTags={selectedTags}
+                onTagToggle={setSelectedTags}
+                maxTags={3}
+              />
+
+              {/* Preview */}
+              {name.trim() && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30"
+                >
+                  <p className="text-xs text-gray-400 mb-1">Preview:</p>
+                  <p className="text-lg font-medium text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-pink-400" />
+                    {getDisplayName()}
+                  </p>
+                </motion.div>
+              )}
 
               <motion.button
                 whileHover={{ scale: 1.02 }}

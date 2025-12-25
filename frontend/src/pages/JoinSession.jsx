@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 import HeartIcon from '../components/HeartIcon'
+import PersonalityTags from '../components/PersonalityTags'
 import useApi from '../hooks/useApi'
+
+const CUTE_ICONS = ['💖', '🌸', '✨', '🦋', '🌈', '💫', '🍬', '🎀']
 
 const JoinSession = () => {
   const navigate = useNavigate()
@@ -11,6 +14,8 @@ const JoinSession = () => {
   const { joinSession } = useApi()
 
   const [name, setName] = useState('')
+  const [selectedIcon, setSelectedIcon] = useState('💖')
+  const [selectedTags, setSelectedTags] = useState([])
   const [sessionCode, setSessionCode] = useState(urlCode || '')
   const [isJoining, setIsJoining] = useState(false)
   const [partnerName, setPartnerName] = useState(null)
@@ -29,12 +34,12 @@ const JoinSession = () => {
     setError('')
 
     try {
-      const data = await joinSession(sessionCode.trim().toUpperCase(), name.trim())
+      const data = await joinSession(sessionCode.trim().toUpperCase(), getDisplayName())
 
       // Store session info
       sessionStorage.setItem('sessionCode', data.session_code)
       sessionStorage.setItem('personId', data.person_id)
-      sessionStorage.setItem('personName', name.trim())
+      sessionStorage.setItem('personName', getDisplayName())
       sessionStorage.setItem('isCreator', 'false')
 
       setPartnerName(data.partner_name)
@@ -83,7 +88,7 @@ const JoinSession = () => {
               <p className="text-gray-400 mt-2">Enter the code from your partner</p>
             </div>
 
-            <div className="glass rounded-2xl p-8">
+            <div className="glass rounded-2xl p-6 space-y-4">
               {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -108,19 +113,61 @@ const JoinSession = () => {
                 />
               </div>
 
-              <div className="mb-6">
+              <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Your Name
+                  Pick your icon 🎨
                 </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name..."
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all text-white placeholder-gray-500"
-                  onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
-                />
+                <div className="flex flex-wrap gap-2">
+                  {CUTE_ICONS.map((icon) => (
+                    <motion.button
+                      key={icon}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setSelectedIcon(icon)}
+                      className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all duration-200 ${selectedIcon === icon ? 'bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg shadow-pink-500/30' : 'bg-white/10 hover:bg-white/20'}`}
+                    >
+                      {icon}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Your Name 💕
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">{selectedIcon}</span>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name..."
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400/30 transition-all text-white placeholder-gray-500"
+                    onKeyPress={(e) => e.key === 'Enter' && handleJoin()}
+                  />
+                </div>
+              </div>
+
+              <PersonalityTags
+                selectedTags={selectedTags}
+                onTagToggle={setSelectedTags}
+                maxTags={3}
+              />
+
+              {name.trim() && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30"
+                >
+                  <p className="text-xs text-gray-400 mb-1">Your vibe:</p>
+                  <p className="text-md font-medium text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-pink-400" />
+                    {getDisplayName()}
+                  </p>
+                </motion.div>
+              )}
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
